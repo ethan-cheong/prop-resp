@@ -37,7 +37,10 @@ class Market:
             raise ValueError("Check that budget and utility dimensions conform. Budget should be 1xn and Utility should be mxn")
         if start_bids.shape != utility.shape:
             raise ValueError("Check that starting bids and utility have the same dimensions.")
-         
+        
+        if any(np.sum(start_bids, axis=1) > budget):
+            raise ValueError("Starting bids of each invididual cannot be greater than their budget!")
+
         self.time = 0
         self.bid = start_bids
         self.price = np.sum(start_bids, axis=0) # each good's price is the sum of bids
@@ -61,6 +64,8 @@ class Market:
 
     def prop_resp_update(self):
         self.price = np.sum(self.bid, axis=0) # calculate new prices
+        if not np.all(self.price):
+            raise ZeroDivisionError("Price of good " + str(np.argwhere(self.price == 0)[0]) + " reached 0 at time " + str(self.time) + ".") 
         self.qty = (self.bid.T / self.price[:, None]).T # calculate new quantities
         
         # Update bids. Using for loop for now
@@ -68,6 +73,11 @@ class Market:
             sum_utility = 0
             for k in range(self.n_goods):
                 sum_utility += self.utility[i, k] * self.qty[i, k]
+            if sum_utility == 0:
+                    raise ValueError("Individual " + str(i) + " receives no utility from their bundle. The initial bids were inconsistent with their utilities. Check that individual gets positive utility from their initial bids.")
+                    # TODO: Prove that we only get a division by 0 error if initial bids are inconsistent with utilities. 
+                    # TODO: You can put this in the diss / notes to laszlo. AKA, they put all their money into a good they get no money for.
+
             for j in range(self.n_goods):
                 self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
         
