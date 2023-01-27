@@ -33,23 +33,44 @@ class Market:
     def __init__(self, budget: np.array, start_bids: np.array, utility: np.array):
         
         self.n_buyers, self.n_goods = utility.shape
-        #   TODO: Check that dimensions of inputs conform
-
+        if len(budget) != self.n_buyers:
+            raise ValueError("Check that budget and utility dimensions conform. Budget should be 1xn and Utility should be mxn")
+        if start_bids.shape != utility.shape:
+            raise ValueError("Check that starting bids and utility have the same dimensions.")
+         
         self.time = 0
         self.bid = start_bids
         self.price = np.sum(start_bids, axis=0) # each good's price is the sum of bids
+        #   TODO: Throw an error if goods start off with 0 price.
+        if not np.all(self.price):
+            raise ZeroDivisionError("Price of good has reached 0.")
+        
         self.qty = (start_bids.T / self.price[:, None]).T
         self.budget = budget
         self.utility = utility
         # Assume that at time step 0, 
 
-    def get_price():
+    def get_price(self):
         return self.price
 
-    def get_qty():
+    def get_qty(self):
         return self.qty
     
-    def get_bid():
+    def get_bid(self):
         return self.bid
+
+    def prop_resp_update(self):
+        self.price = np.sum(self.bid, axis=0) # calculate new prices
+        self.qty = (self.bid.T / self.price[:, None]).T # calculate new quantities
+        
+        # Update bids. Using for loop for now
+        for i in range(self.n_buyers):
+            sum_utility = 0
+            for k in range(self.n_goods):
+                sum_utility += self.utility[i, k] * self.qty[i, k]
+            for j in range(self.n_goods):
+                self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
+        
+        self.time += 1
     
     
