@@ -29,13 +29,26 @@ class Initializer:
     
     def initialize_linear_utilities_basic(self):
         util = np.random.rand(self.n_buyers, self.n_goods)
+        # utilities are sampled from Unif[0,1]
+        
+        # normalize utilities to 1. In line with Zhang's convergence proof
+        util_row_sums = util.sum(axis=1)
+        util = util / util_row_sums[:, np.newaxis]
+        
+        # budgets sum to 1 - again in line with zhang's convergence proof
+
         budget = np.ones(self.n_buyers)
+
         # bids - initialise start bid as the amount of utility they get from the good?
         # bids - rescale utilities to sum to budget per good.
-        # TODO: Easy fix for loss of precision problem
-        bids = (util.T/(1.1*util.sum(axis=1))).T
+        # multiply by 1.01 for easy fix for loss of precision for floats
+        bids = (util.T/(1.01*util.sum(axis=1))).T
+
         return [budget, bids, util]
         # TODO: choose how you wanna initialize start bids
+        # TODO: Dealing with the rounding to 0 problem.
+
+    
         
 
 

@@ -68,6 +68,9 @@ class Market:
         self.qty = (self.bid.T / self.price[:, None]).T # calculate new quantities
         
         # Update bids. Using for loop for now
+
+        # TODO: Practical Proportional Response.
+        # Problem: Each time step is very slow!! how to fix?
         for i in range(self.n_buyers):
             sum_utility = 0
             for k in range(self.n_goods):
