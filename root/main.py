@@ -1,28 +1,22 @@
 from market import Market
 import numpy as np
+from initializer import Initializer
 
 # Initialise a market.
+initializer = Initializer(10, 8, 1)
+params = initializer.initialize_linear_utilities_basic()
+#print(params)
+print(params[0].shape) # budget
+print(params[1].shape) # bids
+print(params[2].shape) # utils
 
-# Initialise starting budgets.
+market = Market(params[0], params[1], params[2])
+# print(params[0])
+# print(params[1])
+# print(np.sum(params[1], axis=1))
+print(market.get_qty())
+market.prop_resp_update()
 
-budget = np.array([1,2,3,4]) # 4 individuals
-
-utility = np.array([
-    [0,2,5],
-    [2,3,4],
-    [10,4,5],
-    [2, 20, 3]
-])
-
-bids = np.array([
-    [0,1,0],
-    [0,0,2],
-    [0,3,0],
-    [1,1,1]
-])
-
-
-market = Market(budget=budget, start_bids=bids, utility=utility)
-for i in range(5):
-    print(market.get_qty())
-    market.prop_resp_update()
+# for i in range(10):
+#     print(market.get_qty())
+#     market.prop_resp_update()
