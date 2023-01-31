@@ -43,10 +43,10 @@ class Initializer:
         # bids - rescale utilities to sum to budget per good.
         # multiply by 1.01 for easy fix for loss of precision for floats
         bids = (util.T/(1.01*util.sum(axis=1))).T
-
+        # TODO: Deal with the rounding to 0 error
         return [budget, bids, util]
-        # TODO: choose how you wanna initialize start bids
-        # TODO: Dealing with the rounding to 0 problem.
+        
+    # TODO: more complicated utility initializations!
 
     
         
