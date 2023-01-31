@@ -1,8 +1,9 @@
 import numpy as np
+from abc import ABC, abstractmethod
 
 class Market:
     """
-    Class to represent a market with proportionate response dynamics (or variations)
+    Class to represent a market 
     Market initialized with n buyers and m goods. 
     Buyers will be indexed with i and goods with j by convention.
 
@@ -61,7 +62,21 @@ class Market:
     def get_bid(self):
         return self.bid
 
-    def prop_resp_update(self):
+    def get_time(self):
+        return self.time 
+
+    @abstractmethod
+    def update(self):
+        pass
+
+class PropRespLinearMarket(Market):
+    """
+    Class to represent a market, using proportionate response dynamics.
+    """
+    def __init__(self, budget: np.array, start_bids: np.array, utility: np.array):
+        super().__init__(budget, start_bids, utility)
+
+    def update(self):
         self.price = np.sum(self.bid, axis=0) # calculate new prices
         if not np.all(self.price):
             raise ZeroDivisionError("Price of good " + str(np.argwhere(self.price == 0)[0]) + " reached 0 at time " + str(self.time) + ".") 
