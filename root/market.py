@@ -23,6 +23,8 @@ class Market:
         1d 1xn array. budget[i] gives buyer i's budget.
     utility : np.array
         2d nxm array. utility[i,j] gives the u_ij used in buyer i's utility function.
+    individual_utility : np.array
+        1d 1xn array. individual_utility[i] gives total utility of buyer i.
 
     Methods
     -------
@@ -51,6 +53,7 @@ class Market:
         self.qty = (start_bids.T / self.price[:, None]).T
         self.budget = budget
         self.utility = utility
+        self.individual_utility = np.zeros(self.n_buyers)
         # Assume that at time step 0, 
 
     def get_price(self):
@@ -64,6 +67,9 @@ class Market:
 
     def get_time(self):
         return self.time 
+    
+    def get_individual_utility(self):
+        return self.individual_utility
 
     @abstractmethod
     def update(self):
@@ -87,9 +93,11 @@ class PropRespLinearMarket(Market):
         # TODO: Practical Proportional Response.
         # Problem: Each time step is very slow!! how to fix?
         for i in range(self.n_buyers):
-            sum_utility = 0
-            for k in range(self.n_goods):
-                sum_utility += self.utility[i, k] * self.qty[i, k]
+            # vectorised sum
+            sum_utility = np.inner(self.utility[i], self.qty[i])
+
+
+            self.individual_utility[i] = sum_utility
             if sum_utility == 0:
                     raise ValueError("Individual " + str(i) + " receives no utility from their bundle. The initial bids were inconsistent with their utilities. Check that individual gets positive utility from their initial bids.")
                     # TODO: Prove that we only get a division by 0 error if initial bids are inconsistent with utilities. 
@@ -99,5 +107,39 @@ class PropRespLinearMarket(Market):
                 self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
         
         self.time += 1
-    
+
+class GeneralPropRespCDMarket(Market):
+    """
+    Class to represent a market with Cobb-Douglas Preferences, using general proportionate response dynamics.
+    In the CD Market, utility[i,j] is interpreted as the power of good j in buyer i's utility function.
+    These sum to 1, as per the standard definition of CD preferences.
+    """
+    def __init__(self, budget: np.array, start_bids: np.array, utility: np.array):
+        super().__init__(budget, start_bids, utility)
+
+    def update(self):
+        self.price = np.sum(self.bid, axis=0) # calculate new prices
+        if not np.all(self.price):
+            raise ZeroDivisionError("Price of good " + str(np.argwhere(self.price == 0)[0]) + " reached 0 at time " + str(self.time) + ".") 
+        self.qty = (self.bid.T / self.price[:, None]).T # calculate new quantities
+        
+        # Update bids. Using for loop for now
+
+        for i in range(self.n_buyers):
+            # TODO: Calculate the gradient vector for this individual's preferences
+            coefs = self.utility[i]
+            # TODO: Take cross product with the quantity vector.
+            sum_utility = 0
+            for k in range(self.n_goods):
+                sum_utility += self.utility[i, k] * self.qty[i, k]
+            self.individual_utility[i] = sum_utility
+            if sum_utility == 0:
+                    raise ValueError("Individual " + str(i) + " receives no utility from their bundle. The initial bids were inconsistent with their utilities. Check that individual gets positive utility from their initial bids.")
+                    # TODO: Prove that we only get a division by 0 error if initial bids are inconsistent with utilities. 
+                    # TODO: You can put this in the diss / notes to laszlo. AKA, they put all their money into a good they get no money for.
+
+            for j in range(self.n_goods):
+                self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
+        
+        self.time += 1 
     
