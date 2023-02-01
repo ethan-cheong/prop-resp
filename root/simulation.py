@@ -1,7 +1,6 @@
 from market import Market
 import warnings
 
-
 class Simulation:
     """
     Class to simulate dynamics.
@@ -19,6 +18,8 @@ class Simulation:
         qtys[t] gives qty np.array at time t
     bids: list
         bids[t] gives bid np.array at time t
+    utilities: list
+        utilities[t] gives individual utility np.array at time t
     
     """
     def __init__(self, market: Market):
@@ -29,9 +30,11 @@ class Simulation:
         self.prices = []
         self.qtys = []
         self.bids = []
+        self.utilities = []
         self.prices.append(market.get_price())
         self.qtys.append(market.get_qty())
         self.bids.append(market.get_bid())
+        self.utilities.append(market.get_individual_utility())
     
     def run(self, time_steps):
         for i in range(time_steps):
@@ -39,6 +42,7 @@ class Simulation:
             self.prices.append(self.market.get_price())
             self.qtys.append(self.market.get_qty())
             self.bids.append(self.market.get_bid())
+            self.utilities.append(self.market.get_individual_utility())
 
     def get_prices(self):
         return self.prices
@@ -48,6 +52,9 @@ class Simulation:
     
     def get_bids(self):
         return self.bids
+
+    def get_utilities(self):
+        return self.utilities
 
     
         
