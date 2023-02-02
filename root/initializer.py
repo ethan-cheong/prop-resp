@@ -42,8 +42,11 @@ class Initializer:
         # bids - initialise start bid as the amount of utility they get from the good?
         # bids - rescale utilities to sum to budget per good.
         # multiply by 1.01 for easy fix for loss of precision for floats
+        
         bids = (util.T/(1.01*util.sum(axis=1))).T
-        # TODO: Deal with the rounding to 0 error
+
+        #bids = np.full((self.n_buyers, self.n_goods), 1/self.n_goods)
+        
         return [budget, bids, util]
 
     def initialize_linear_utilities_discrete(self, high=2):
