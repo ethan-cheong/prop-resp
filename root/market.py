@@ -100,9 +100,7 @@ class PropRespLinearMarket(Market):
             self.individual_utility[i] = sum_utility
             if sum_utility == 0:
                     raise ValueError("Individual " + str(i) + " receives no utility from their bundle. The initial bids were inconsistent with their utilities. Check that individual gets positive utility from their initial bids.")
-                    # TODO: Prove that we only get a division by 0 error if initial bids are inconsistent with utilities. 
-                    # TODO: You can put this in the diss / notes to laszlo. AKA, they put all their money into a good they get no money for.
-
+                   
             for j in range(self.n_goods):
                 self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
         
@@ -113,9 +111,12 @@ class GeneralPropRespCDMarket(Market):
     Class to represent a market with Cobb-Douglas Preferences, using general proportionate response dynamics.
     In the CD Market, utility[i,j] is interpreted as the power of good j in buyer i's utility function.
     These sum to 1, as per the standard definition of CD preferences.
+
+    Should converge at the same linear rate, as linear utilities.
     """
     def __init__(self, budget: np.array, start_bids: np.array, utility: np.array):
         super().__init__(budget, start_bids, utility)
+        self.pd_exp = self.utility - 1;
 
     def update(self):
         self.price = np.sum(self.bid, axis=0) # calculate new prices
@@ -125,21 +126,26 @@ class GeneralPropRespCDMarket(Market):
         
         # Update bids. Using for loop for now
 
+
         for i in range(self.n_buyers):
-            # TODO: Calculate the gradient vector for this individual's preferences
-            coefs = self.utility[i]
-            # TODO: Take cross product with the quantity vector.
-            sum_utility = 0
-            for k in range(self.n_goods):
-                sum_utility += self.utility[i, k] * self.qty[i, k]
-            self.individual_utility[i] = sum_utility
+            # Calculate gradient vector for individual
+            gradient = np.zeros(self.n_goods) 
+            for j in range(self.n_goods):
+                # TODO: Bug in the line below
+                gradient[j] = np.prod(np.power(self.qty[i], self.utility[i])) / self.qty[i,j] * (self.utility[i,j]-1)
+
+            sum_utility = np.inner(self.qty[i], gradient) 
             if sum_utility == 0:
                     raise ValueError("Individual " + str(i) + " receives no utility from their bundle. The initial bids were inconsistent with their utilities. Check that individual gets positive utility from their initial bids.")
-                    # TODO: Prove that we only get a division by 0 error if initial bids are inconsistent with utilities. 
-                    # TODO: You can put this in the diss / notes to laszlo. AKA, they put all their money into a good they get no money for.
 
             for j in range(self.n_goods):
-                self.bid[i, j] = self.budget[i] * self.utility[i, j] * self.qty[i, j] / sum_utility
+                self.bid[i, j] = self.budget[i] * self.qty[i, j] * gradient[j]/ sum_utility
         
         self.time += 1 
     
+# TODO: Add in functions below 
+# - combination of two different alphas - eg alpha = 1, alpha = 1/2 (quasi-linear) - and put in money as a parameter in the example. (Bidding with money left over)
+# - try to mimic what's happening there for the proportional response (with leftover money case, quasilinear). Look at zhang proof
+# - Leontief utilities (complements) (subgradient)
+# - constant elasticity of substitution (has already been shown to converge!)
+# - Piecewise linear - stay clear of this first.
