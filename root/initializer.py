@@ -71,7 +71,7 @@ class Initializer:
         # budgets sum to 1 - again in line with zhang's convergence proof
 
         budget = np.ones(self.n_buyers)
-
+        # Don't separate the bidding from utilities.
         # bids - initialise start bid as the amount of utility they get from the good?
         # bids - rescale utilities to sum to budget per good.
         # multiply by 1.01 for easy fix for loss of precision for floats
@@ -79,7 +79,10 @@ class Initializer:
         # TODO: Deal with the rounding to 0 error
         return [budget, bids, util]
         
-    # TODO: more complicated utility initializations!
+    # TODO: more complicated utility initializations, like below
+    # 1. Randomly assign agents to groups, with different distributions (liking a good more or less)
+    # 2. Giving goods different values
+    # 3. Randomly knock out utilities for some of the goods.
 
     
         
