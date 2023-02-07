@@ -131,8 +131,11 @@ class GeneralPropRespCDMarket(Market):
             # Calculate gradient vector for individual
             gradient = np.zeros(self.n_goods) 
             for j in range(self.n_goods):
-                # TODO: Bug in the line below
-                gradient[j] = np.prod(np.power(self.qty[i], self.utility[i])) / self.qty[i,j] * (self.utility[i,j]-1)
+                # feature of cobb douglas! 
+                if self.qty[i,j]==0:
+                    gradient[j] = 0
+                else:
+                    gradient[j] = np.prod(np.power(self.qty[i], self.utility[i]))*  self.qty[i,j]** -1 * (self.utility[i,j])
 
             sum_utility = np.inner(self.qty[i], gradient) 
             if sum_utility == 0:
