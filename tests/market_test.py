@@ -73,7 +73,7 @@ class PropRespCDTest(unittest.TestCase):
         ])
 
         bids = np.array([
-            [0,0.2,0.5],
+            [0.1,0.2,0.5],
             [0.2,0.8,1],
             [1,1,1],
             [1,1,2]
@@ -81,7 +81,9 @@ class PropRespCDTest(unittest.TestCase):
 
 
         market = GeneralPropRespCDMarket(budget=budget, start_bids=bids, utility=utility)
-        market.update()
+        for i in range(5):
+            market.update()
+
 
 
 if __name__ == '__main__':
