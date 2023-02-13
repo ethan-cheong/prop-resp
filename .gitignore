@@ -348,3 +348,19 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Venv folder
+venv/
+
+# Jupyter notebook sandbox folder
+notebooks/
+
+# Jupyter notebooks
+*.ipynb
+
+.ipynb_checkpoints/
+
+settings.json
+
+# Datasets
+data/
