@@ -76,9 +76,38 @@ class Initializer:
         # bids - rescale utilities to sum to budget per good.
         # multiply by 1.01 for easy fix for loss of precision for floats
         bids = (util.T/(1.01*util.sum(axis=1))).T
-        # TODO: Deal with the rounding to 0 error
+        return [budget, bids, util]
+
+    def initialize_low_mid_high_utilities(self, n_goods): 
+        """
+        Initializes utilities for certain individuals having preferences for certain goods.
+        Good's preferences are randomly distributed among groups of individuals.
+
+
+         
+        """
+
+    def initialize_preferred_goods_manual(self, input, noise):
+        # TODO: Fix this later by adding in automatic generation
+        # Idea: add in discrete combinations of utilities, shuffle them for each individual, add in random noise
+        """
+        Adds random noise to matrix of utilities.
+        Params
+        ------
+        input: np.array
+            nxm array of utilities
+        noise: float
+            non-negative standard deviation of gaussian noise
+        """
+        noise_array = np.random.normal(1.0, noise, size=input.shape)
+        budget = np.ones(input.shape[0])
+        util = input * noise_array
+        #bids = (util.T/(1.01*util.sum(axis=1))).T
+        # constant bids below
+        bids = np.full(shape = input.shape, fill_value = 1 / input.shape[1])
         return [budget, bids, util]
         
+
     # TODO: more complicated utility initializations, like below
     # 1. Randomly assign agents to groups, with different distributions (liking a good more or less)
     # 2. Giving goods different values
